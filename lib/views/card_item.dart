@@ -13,24 +13,35 @@ class CardItem extends StatelessWidget {
       width: screenWidth * 0.9,
       padding: EdgeInsets.all(8.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.network(
             card.imageUrl,
-            width: screenWidth * 0.2,
+            width: screenWidth * 0.3,
+            fit: BoxFit.cover,
           ),
-          SizedBox(width: screenWidth * 0.05),
-          Flexible(
+          SizedBox(width: 16.0),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  card.name,
+                  'ID: ${card.id}',
+                  style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  'Name: ${card.name}',
                   style: TextStyle(fontSize: screenWidth * 0.05),
                 ),
                 Text(
-                  card.type,
+                  'Type: ${card.type}',
                   style: TextStyle(fontSize: screenWidth * 0.04),
                 ),
+                Text(
+                  'Archetype: ${card.archetype ?? "N/A"}',
+                  style: TextStyle(fontSize: screenWidth * 0.04),
+                ),
+                SizedBox(height: 8.0),
               ],
             ),
           ),

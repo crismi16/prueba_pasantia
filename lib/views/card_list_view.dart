@@ -19,7 +19,6 @@ class _CardListViewState extends State<CardListView> {
     _cardProvider = Provider.of<CardProvider>(context, listen: false);
     _scrollController.addListener(_scrollListener);
 
-    // Posponer la llamada a fetchCards para evitar conflictos durante la construcción
     Future.delayed(Duration.zero, () {
       _cardProvider.fetchCards();
     });
@@ -48,7 +47,7 @@ class _CardListViewState extends State<CardListView> {
             if (index < cardProvider.cards.length) {
               return CardItem(card: cardProvider.cards[index]);
             } else {
-              return LoadingIndicator(); // Muestra el indicador de carga al final de la lista
+              return LoadingIndicator();
             }
           },
         );

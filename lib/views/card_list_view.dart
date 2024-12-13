@@ -5,13 +5,16 @@ import 'package:flutter_pasantia/views/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
 class CardListView extends StatefulWidget {
+  const CardListView({super.key});
+
   @override
-  _CardListViewState createState() => _CardListViewState();
+  CardListViewState createState() => CardListViewState();
 }
 
-class _CardListViewState extends State<CardListView> {
-  ScrollController _scrollController = ScrollController();
+class CardListViewState extends State<CardListView> {
+  final ScrollController _scrollController = ScrollController();
   late CardProvider _cardProvider;
+  String _searchQuery = "";
 
   @override
   void initState() {
@@ -26,8 +29,15 @@ class _CardListViewState extends State<CardListView> {
 
   void _scrollListener() {
     if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_cardProvider.isLoading) {
-      _cardProvider.fetchCards();
+      _cardProvider.loadMoreFilteredCards(_searchQuery);
     }
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+    _cardProvider.fetchFilteredCards(query);
   }
 
   @override
@@ -38,20 +48,68 @@ class _CardListViewState extends State<CardListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CardProvider>(
-      builder: (context, cardProvider, child) {
-        return ListView.builder(
-          controller: _scrollController,
-          itemCount: cardProvider.cards.length + (cardProvider.isLoading ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index < cardProvider.cards.length) {
-              return CardItem(card: cardProvider.cards[index]);
-            } else {
-              return LoadingIndicator();
-            }
-          },
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Yu-Gi-Oh! Card List',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.black,
+      ),
+      backgroundColor: Colors.black,
+      body: Consumer<CardProvider>(
+        builder: (context, cardProvider, child) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  onChanged: _onSearchChanged,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Search cards...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: cardProvider.hasResults 
+                  ? ListView.builder(
+                      controller: _scrollController,
+                      itemCount: cardProvider.cards.length + (cardProvider.isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index < cardProvider.cards.length) {
+                          return CardItem(card: cardProvider.cards[index]);
+                        } else {
+                          return const LoadingIndicator();
+                        }
+                      },
+                    )
+                  : const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.search_off, color: Colors.white, size: 64.0),
+                          SizedBox(height: 16.0),
+                          Text(
+                            'No results found',
+                            style: TextStyle(color: Colors.white, fontSize: 24.0),
+                          ),
+                        ],
+                      ),
+                    ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
